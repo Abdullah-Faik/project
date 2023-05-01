@@ -3,7 +3,9 @@ from OpenGL.GLU import *
 from OpenGL.GLUT import *
 import sys
 import random
-#kf
+s_t = 800
+s_b = 0
+
 class Rec(object):
 	def __init__(self, t, b, r, l):
 		self.top = t
@@ -23,21 +25,33 @@ def drawrec(rec, pos):
 	glEnd()
 
 def init():
+	global s_t, s_b
 	glClearColor(0.0, 0.0, 0.0, 0.0)
 	glClear(GL_COLOR_BUFFER_BIT)
 	glMatrixMode(GL_PROJECTION)
 	glLoadIdentity()
-	glOrtho(0, 800, 0, 800, -1.0, 1.0) # left, right, bottom, top, near, far
+	glOrtho(0, 800, s_b, s_t + s_b, -1.0, 1.0) # left, right, bottom, top, near, far
 	glMatrixMode(GL_MODELVIEW)
 
 	gluLookAt(0, b_y, -1, 0, b_y, 0, 0, 1, 0)
 
+	
+def reshape(h):
+        s_t= h
+        glViewport(0, 0, 800, s_t)
+
+	
+
+
 
 def createPlate():
 	if plates == []:
-		plates.append(Rec(800, 790, random.randint(400, 750), random.randint(0,300)))
+		plates.append(Rec(790,800, min(random.randint(400, 750),450), max(random.randint(0,300), 250)))
 	if plates[-1].top <= 650:
-		plates.append(Rec(800, 790, random.randint(400, 800), random.randint(0,350)))
+		plates.append(Rec(800, 790,min(random.randint(400, 750),450), max(random.randint(0,300), 250)))
+def check_plates():
+	pass
+
 
 def stars():
 	createPlate()
@@ -59,20 +73,18 @@ b_x = 400
 b_y = 0
 plates = []
 i = 0
-d_b_x = -3
+d_b_x = -5
 start = False
 
 def keypress(key, x, y):
 	global b_x, b_y
-	if key == b'w':
-		b_y += 400
+	if key == GLUT_KEY_UP:
+		b_y += 200
 		start = True
-	elif key == b's':
-		b_y -= 10
-	elif key == b'a':
-		b_x -= 10
-	elif key == b'd':
+	elif key == GLUT_KEY_RIGHT:
 		b_x += 10
+	elif key == GLUT_KEY_LEFT:
+		b_x -= 10
 	glutPostRedisplay()
 def draw():
 	global s_x, s_y, plates, i , b_x, b_y
@@ -81,21 +93,24 @@ def draw():
 	stars()
 	glLoadIdentity()
 	glColor3f(1.0, 0, 0)
-	# update the camera position to follow the ball
-	gluLookAt(b_x, b_y, -1, b_x, b_y, 0, 0, 1, 0)
 	glTranslatef(b_x, b_y, 0.0)  # move to center of the screen
 	ball = Rec(20, 0, 20, 0)
 	drawrec(ball, (b_x, b_y))
-    # check for collisions with plates
+	gluLookAt(b_x, b_y, -1, b_x, b_y, 0, 0, 1, 0)
 	for plate in plates:
-		if b_x >= plate.left and b_x <= plate.right and b_y >= plate.bottom and b_y <= plate.top:
+		if b_x >= plate.left and b_x <= plate.right and b_y > plate.bottom and b_y <= plate.top:
+				b_y += plate.top - b_y
 				d_b_x = s_y
 				break
 		else:
-			d_b_x = -3
+			d_b_x = -5
 	if b_y > 0:
 		b_y += d_b_x
 	glutSwapBuffers()
+INTERVAL = 10
+def game_timer(v):
+	draw()
+	glutTimerFunc(INTERVAL, game_timer, 1)
 
 def main():
 	glutInit()
@@ -104,8 +119,9 @@ def main():
 	glutInitWindowPosition(100, 100)
 	glutCreateWindow("OpenGL - First window demo")
 	glutDisplayFunc(draw)
+	glutTimerFunc(INTERVAL, game_timer, 1)
 	glutKeyboardFunc(keypress)
-	glutIdleFunc(draw)
+	glutSpecialFunc(keypress)
 	glutMainLoop()
 
 main()
