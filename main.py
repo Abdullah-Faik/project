@@ -3,7 +3,7 @@ from OpenGL.GLU import *
 from OpenGL.GLUT import *
 import sys
 import random
-
+#kf
 class Rec(object):
 	def __init__(self, t, b, r, l):
 		self.top = t
