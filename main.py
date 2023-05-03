@@ -40,10 +40,6 @@ def reshape(h):
         s_t= h
         glViewport(0, 0, 800, s_t)
 
-	
-
-
-
 def createPlate():
 	if plates == []:
 		plates.append(Rec(790,800, min(random.randint(400, 750),450), max(random.randint(0,300), 250)))
@@ -73,7 +69,8 @@ b_x = 400
 b_y = 0
 plates = []
 i = 0
-d_b_x = -5
+d_b_y = -5
+d_b_x = 1
 start = False
 
 def keypress(key, x, y):
@@ -85,9 +82,8 @@ def keypress(key, x, y):
 		b_x += 10
 	elif key == GLUT_KEY_LEFT:
 		b_x -= 10
-	glutPostRedisplay()
 def draw():
-	global s_x, s_y, plates, i , b_x, b_y
+	global s_x, s_y, plates, i , b_x, b_y , d_b_y, d_b_x
 	init()
 	glColor3f(1.0, 1.0, 1.0)
 	stars()
@@ -100,7 +96,8 @@ def draw():
 	for plate in plates:
 		if b_x >= plate.left and b_x <= plate.right and b_y > plate.bottom and b_y <= plate.top:
 				b_y += plate.top - b_y
-				d_b_x = s_y
+				d_b_y = s_y
+				b_x += s_x * plate.direction
 				break
 		else:
 			d_b_x = -5
