@@ -8,6 +8,13 @@ s_b = 0
 frastom_top = 800
 frastom_bottom = 0
 
+"""class
+class Rec(object):
+@description: This class is used to create a rectangle
+@attributes: top, bottom, right, left, direction
+@methods: __init__
+"""
+
 class Rec(object):
 	def __init__(self, t, b, r, l):
 		self.top = t
@@ -16,6 +23,14 @@ class Rec(object):
 		self.left = l
 		self.direction = 1
 
+
+"""drawrec(rec, pos):
+@description: This function is used to draw a rectangle
+@attributes: rec, pos
+@rec: a rectangle
+@pos: position of the rectangle
+@methods: drawrec
+"""
 def drawrec(rec, pos):
 	glLoadIdentity()
 	glTranslatef(pos[0], pos[1], 0.0)
@@ -26,18 +41,33 @@ def drawrec(rec, pos):
 	glVertex2f(rec.left, rec.top)
 	glEnd()
 
+
+""" init():
+@description: This function is used to initialize the screen
+@attributes: s_t, s_b, frastom_top, frastom_bottom, f_y
+@frastom_top: frastom top 
+@frastom_bottom: frastom bottom
+@f_y: frastom  movemwnt in direction y 
+@methods: init
+"""
 def init():
-	global s_t, s_b, frastom_top, frastom_bottom, f_y
+	global frastom_top, frastom_bottom, f_y
 	glClearColor(0.0, 0.0, 0.0, 0.0)
 	glClear(GL_COLOR_BUFFER_BIT)
 	glMatrixMode(GL_PROJECTION)
 	glLoadIdentity()
-	frastom_bottom += f_y
-	frastom_top += f_y
+	frastom_bottom += 2
+	frastom_top += 2
 	glOrtho(0, 800,frastom_bottom ,frastom_top, -1.0, 1.0) # left, right, bottom, top, near, far
 	glMatrixMode(GL_MODELVIEW)
 
 
+"""createPlate():
+@description: This function is used to draw the frastom
+@attributes: plates, plates_pos,
+@plates: list of plates
+@plates_pos: list of plates positions
+"""
 def createPlate():
 	global plates, plates_pos
 	if plates == []:	
@@ -47,7 +77,12 @@ def createPlate():
 		plates.append(Rec(plates[-1].top + 150 ,plates[-1].bottom + 150 ,min(random.randint(400, 750),450), max(random.randint(0,300), 250)))
 		plates_pos.append(random.randint(int(-400 +(plates[-1].right - plates[-1].left) / 2),int (400 - (plates[-1].right - plates[-1].left) / 2)))
 
-def stars():
+
+"""stairs
+@description: This function is used to draw the plates and create new plate
+and it's responsible for the movement of the plates in x direction
+"""
+def stairs():
 	global plates 
 	createPlate()
 	for i in range(0,len(plates),1):
@@ -63,19 +98,26 @@ def stars():
 		#if plates[i].top <= 0:
 			# plates.remove(plates[i])
 			# plates_pos.remove(plates_pos[i])
-s_x = 1 # moving plates	in x direction
+
+
+s_x = 5 # moving plates	in x direction
 s_y = -1 # moving plates in y direction make them fall
 b_x = 400 # ball x position in the middle of the screen when 
 b_y = 0 # ball y position in the middle of the screen when
 plates = [] # list of plates
 plates_pos = [] # list of plates positions
 i = 0 # index of plates
-d_b_y = -5
-d_b_x_p = 10
-start = False
-allower = 0
-f_y = 0
+d_b_y = -10 # ball y direction
+d_b_x = -10 # ball x direction
+start = False # start game
+f_y = 0 # falling y
 
+
+"""keypress(key):
+@description: This function is responsible for the movement of the ball using the keyboard
+@attributes:key, b_x, b_y, d_b_x, d_b_y
+@key: key pressed
+"""
 def keypress(key, x, y):
 	global b_x, b_y
 	if key == GLUT_KEY_UP and b_y <= frastom_top - 200:
@@ -86,14 +128,17 @@ def keypress(key, x, y):
 		b_x += d_b_x
 	elif key == GLUT_KEY_DOWN:
 		b_y -= 100
+	glutPostRedisplay() # this function is used to redraw the screen after any event like moving the ball
+
+
 def draw():
 	global s_x, s_y, plates, i , b_x, b_y , d_b_y, d_b_x , start, allower , f_y
 	init()
 	glColor3f(1.0, 1.0, 1.0)
-	stars()
+	stairs()
 	glLoadIdentity()
 	glColor3f(1.0, 0, 0)
-	glTranslatef(b_x, b_y, 0.0)  # move to center of the screen
+	glTranslatef(b_x, frastom_bottom, 0.0)  # move to center of the screen
 	ball = Rec(20, 0, 20, 0)
 	drawrec(ball, (b_x, b_y))
 	for i in range(0,len(plates),1):
@@ -104,12 +149,16 @@ def draw():
 				allower = 1
 				break
 		else:
-			d_b_x = -5
-	if b_y >= 0:
+			d_b_y = -5
+	if b_y - frastom_bottom > 0:
 		b_y += d_b_y
+	else :
+		b_y = frastom_bottom
 	f_y += 1
 	glutSwapBuffers()
-INTERVAL = 100
+
+
+INTERVAL = 10
 def game_timer(v):
 	draw()
 	glutTimerFunc(INTERVAL, game_timer, 1)
