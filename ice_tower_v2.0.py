@@ -90,8 +90,9 @@ def createPlate():
 	if plates == []:	
 		plates.append(Rec(150,140, min(random.randint(400, 750),450), max(random.randint(0,300), 250)))
 		plates_pos.append(random.randint(-400 + (plates[-1].right - plates[-1].left) // 2,400 - (plates[-1].right - plates[-1].left) // 2))
-	if plates[-1].top <= frastom_top - 150:
+	if plates[-1].top <= frastom_top:
 		plates.append(Rec(plates[-1].top + 150 ,plates[-1].bottom + 150 ,min(random.randint(400, 750),450), max(random.randint(0,300), 250)))
+		print("---",frastom_top)
 		plates_pos.append(random.randint(int(-400 +(plates[-1].right - plates[-1].left) / 2),int (400 - (plates[-1].right - plates[-1].left) / 2)))
 
 
@@ -159,6 +160,7 @@ def draw():
 	glTranslatef(b_x, frastom_bottom, 0.0)  # move to center of the screen
 	ball = Rec(20, 0, 20, 0)
 	drawrec(ball, (b_x, b_y))
+	print(frastom_top,"--", y_e_c)
 	for i in range(0,len(plates),1):
 		if b_x + 10 >= (plates[i].left + plates_pos[i]) and (b_x + 10 <= plates[i].right + plates_pos[i] ) and b_y >= plates[i].bottom and b_y <= plates[i].top:
 				b_y += plates[i].top - b_y
@@ -181,7 +183,7 @@ def draw():
 	glutSwapBuffers()
 
 
-INTERVAL = 1
+INTERVAL = 100
 def game_timer(v):
 	draw()
 	glutTimerFunc(INTERVAL, game_timer, 1)

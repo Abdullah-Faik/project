@@ -51,13 +51,17 @@ def drawrec(rec, pos):
 @methods: init
 """
 def init():
-	global frastom_top, frastom_bottom, f_y
+	global frastom_top, frastom_bottom, fras_y,ball_dir_y
 	glClearColor(0.0, 0.0, 0.0, 0.0)
 	glClear(GL_COLOR_BUFFER_BIT)
 	glMatrixMode(GL_PROJECTION)
 	glLoadIdentity()
-	frastom_bottom += 2
-	frastom_top += 2
+	if ball_y >= 600:
+		frastom_bottom += -ball_dir_y 
+		frastom_top += -ball_dir_y
+	else:
+		frastom_bottom += 2
+		frastom_top += 2
 	glOrtho(0, 800,frastom_bottom ,frastom_top, -1.0, 1.0) # left, right, bottom, top, near, far
 	glMatrixMode(GL_MODELVIEW)
 
@@ -89,8 +93,8 @@ def stairs():
 		drawrec(plates[i], (plates_pos[i],0))
 		# plates[i].top += s_y
 		# plates[i].bottom += s_y
-		plates[i].left += s_x * plates[i].direction
-		plates[i].right += s_x * plates[i].direction
+		plates[i].left += stair_step_x * plates[i].direction
+		plates[i].right += stair_step_x * plates[i].direction
 		if plates[i].right + plates_pos[i] >= 800:
 			plates[i].direction = -1
 		elif plates[i].left + plates_pos[i] <= 0:
@@ -100,17 +104,17 @@ def stairs():
 			# plates_pos.remove(plates_pos[i])
 
 
-s_x = 5 # moving plates	in x direction
-s_y = -1 # moving plates in y direction make them fall
-b_x = 400 # ball x position in the middle of the screen when 
-b_y = 0 # ball y position in the middle of the screen when
+stair_step_x = 5 # moving plates	in x direction
+stair_Step_y = -1 # moving plates in y direction make them fall
+ball_x = 400 # ball x position in the middle of the screen when 
+ball_y = 0 # ball y position in the middle of the screen when
 plates = [] # list of plates
 plates_pos = [] # list of plates positions
 i = 0 # index of plates
-d_b_y = -10 # ball y direction
-d_b_x = -10 # ball x direction
+ball_dir_y = -10 # ball y direction
+ball_dir_x = -10 # ball x direction
 start = False # start game
-f_y = 0 # falling y
+fras_y = 0 # falling y
 
 
 """keypress(key):
@@ -119,42 +123,42 @@ f_y = 0 # falling y
 @key: key pressed
 """
 def keypress(key, x, y):
-	global b_x, b_y
-	if key == GLUT_KEY_UP and b_y <= frastom_top - 200:
-		b_y += 200
-	elif key == GLUT_KEY_RIGHT and b_x <= s_t - 30:
-		b_x -= d_b_x
-	elif key == GLUT_KEY_LEFT and b_x > 0:
-		b_x += d_b_x
+	global ball_x, ball_y
+	if key == GLUT_KEY_UP and ball_y <= frastom_top - 200:
+		ball_y += 200
+	elif key == GLUT_KEY_RIGHT and ball_x <= s_t - 30:
+		ball_x -= ball_dir_x
+	elif key == GLUT_KEY_LEFT and ball_x > 0:
+		ball_x += ball_dir_x
 	elif key == GLUT_KEY_DOWN:
-		b_y -= 100
+		ball_y -= 100
 	glutPostRedisplay() # this function is used to redraw the screen after any event like moving the ball
 
 
 def draw():
-	global s_x, s_y, plates, i , b_x, b_y , d_b_y, d_b_x , start, allower , f_y
+	global stair_step_x, stair_Step_y, plates, i , ball_x, ball_y , ball_dir_y, ball_dir_x , start, allower , fras_y
 	init()
 	glColor3f(1.0, 1.0, 1.0)
 	stairs()
 	glLoadIdentity()
 	glColor3f(1.0, 0, 0)
-	glTranslatef(b_x, frastom_bottom, 0.0)  # move to center of the screen
+	glTranslatef(ball_x, frastom_bottom, 0.0)  # move to center of the screen
 	ball = Rec(20, 0, 20, 0)
-	drawrec(ball, (b_x, b_y))
+	drawrec(ball, (ball_x, ball_y))
 	for i in range(0,len(plates),1):
-		if b_x + 10 >= (plates[i].left + plates_pos[i]) and (b_x + 10 <= plates[i].right + plates_pos[i] ) and b_y >= plates[i].bottom and b_y <= plates[i].top:
-				b_y += plates[i].top - b_y
-				d_b_y = s_y
-				b_x += s_x * plates[i].direction
+		if ball_x + 10 >= (plates[i].left + plates_pos[i]) and (ball_x + 10 <= plates[i].right + plates_pos[i] ) and ball_y >= plates[i].bottom and ball_y <= plates[i].top:
+				ball_y += plates[i].top - ball_y
+				ball_dir_y = stair_Step_y
+				ball_x += stair_step_x * plates[i].direction
 				allower = 1
 				break
 		else:
-			d_b_y = -5
-	if b_y - frastom_bottom > 0:
-		b_y += d_b_y
+			ball_dir_y = -5
+	if ball_y - frastom_bottom > 0:
+		ball_y += ball_dir_y
 	else :
-		b_y = frastom_bottom
-	f_y += 1
+		ball_y = frastom_bottom
+	fras_y += 1
 	glutSwapBuffers()
 
 
