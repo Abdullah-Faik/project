@@ -47,7 +47,6 @@ c_z = 0ctangle
 """
 def drawrec(rec, pos):
 	glLoadIdentity()
-	look_at()
 	glTranslatef(pos[0], pos[1], 0.0)
 	glBegin(GL_QUADS)
 	glVertex2f(rec.left, rec.bottom)
@@ -183,7 +182,7 @@ def draw():
 	glutSwapBuffers()
 
 
-INTERVAL = 100
+INTERVAL = 50
 def game_timer(v):
 	draw()
 	glutTimerFunc(INTERVAL, game_timer, 1)

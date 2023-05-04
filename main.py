@@ -8,20 +8,17 @@ s_b = 0
 frastom_top = 800
 frastom_bottom = 0
 
-"""class
-class Rec(object):
-@description: This class is used to create a rectangle
-@attributes: top, bottom, right, left, direction
-@methods: __init__
-"""
+
 
 class Rec(object):
-	def __init__(self, t, b, r, l):
+	def __init__(self, t, b, r, l,pos = None):
 		self.top = t
 		self.bottom = b
 		self.right = r
 		self.left = l
 		self.direction = 1
+		self.x = pos[0]
+		self.y = pos[1]
 
 
 """drawrec(rec, pos):
@@ -31,9 +28,9 @@ class Rec(object):
 @pos: position of the rectangle
 @methods: drawrec
 """
-def drawrec(rec, pos):
+def drawrec(rec):
 	glLoadIdentity()
-	glTranslatef(pos[0], pos[1], 0.0)
+	glTranslatef(rec.x,rec.y, 0.0)
 	glBegin(GL_QUADS)
 	glVertex2f(rec.left, rec.bottom)
 	glVertex2f(rec.right, rec.bottom)
@@ -51,14 +48,14 @@ def drawrec(rec, pos):
 @methods: init
 """
 def init():
-	global frastom_top, frastom_bottom, fras_y,ball_dir_y
+	global frastom_top, frastom_bottom, frastom_y,ball_dir_y , ball_y, ball_x, ball_dir_x, ball_radius, plates, plates_pos
 	glClearColor(0.0, 0.0, 0.0, 0.0)
 	glClear(GL_COLOR_BUFFER_BIT)
 	glMatrixMode(GL_PROJECTION)
 	glLoadIdentity()
-	if ball_y >= 600:
-		frastom_bottom += -ball_dir_y 
-		frastom_top += -ball_dir_y
+	if frastom_top - ball_y <= 200:
+		frastom_bottom = frastom_bottom -ball_dir_y + 10
+		frastom_top = frastom_top -ball_dir_y + 10
 	else:
 		frastom_bottom += 2
 		frastom_top += 2
@@ -72,49 +69,56 @@ def init():
 @plates: list of plates
 @plates_pos: list of plates positions
 """
+
 def createPlate():
 	global plates, plates_pos
-	if plates == []:	
-		plates.append(Rec(150,140, min(random.randint(400, 750),450), max(random.randint(0,300), 250)))
-		plates_pos.append(random.randint(-400 + (plates[-1].right - plates[-1].left) // 2,400 - (plates[-1].right - plates[-1].left) // 2))
+	if plates == []:
+		left = 0
+		right = (random.randint(100, 200))
+		x = random.randint(0, 800 - right)
+		pos = (x,0)
+		rec = Rec(150,140,left,right,pos)
+		plates.append(rec)
+
 	if plates[-1].top <= frastom_top - 150:
-		plates.append(Rec(plates[-1].top + 150 ,plates[-1].bottom + 150 ,min(random.randint(400, 750),450), max(random.randint(0,300), 250)))
-		plates_pos.append(random.randint(int(-400 +(plates[-1].right - plates[-1].left) / 2),int (400 - (plates[-1].right - plates[-1].left) / 2)))
+		left = 0
+		right = (random.randint(100, 200))
+		x = random.randint(0, 800 - right)
+		pos = (x,0)
+		rec = Rec(150,140,left,right,pos)
+		plates.append(rec)
 
-
+stair_step_x = 5 # moving plates	in x direction
+stair_step_y = -1 # moving plates in y direction make them fall
 """stairs
 @description: This function is used to draw the plates and create new plate
 and it's responsible for the movement of the plates in x direction
 """
 def stairs():
-	global plates 
+	global plates  , plates_pos, stair_step_x, stair_step_y
 	createPlate()
 	for i in range(0,len(plates),1):
-		drawrec(plates[i], (plates_pos[i],0))
-		# plates[i].top += s_y
-		# plates[i].bottom += s_y
-		plates[i].left += stair_step_x * plates[i].direction
-		plates[i].right += stair_step_x * plates[i].direction
-		if plates[i].right + plates_pos[i] >= 800:
-			plates[i].direction = -1
-		elif plates[i].left + plates_pos[i] <= 0:
-			plates[i].direction = 1
-		#if plates[i].top <= 0:
-			# plates.remove(plates[i])
-			# plates_pos.remove(plates_pos[i])
+		drawrec(plates[i])
+		plates[i].top += stair_step_y 
+		plates[i].bottom += stair_step_y 
+		# plates[i].left += stair_step_x * plates[i].direction
+		# plates[i].right += stair_step_x * plates[i].direction
+		# if plates[i].right + plates[i].x >= 800:
+		# 	plates[i].direction = -1
+		# elif plates[i].left + plates_pos[i] <= 0:
+		# 	plates[i].direction = 1
+		# if plates[i].top <= 0:
+		# 	plates_pos.remove(plates_pos[i])
 
 
-stair_step_x = 5 # moving plates	in x direction
-stair_Step_y = -1 # moving plates in y direction make them fall
 ball_x = 400 # ball x position in the middle of the screen when 
 ball_y = 0 # ball y position in the middle of the screen when
 plates = [] # list of plates
-plates_pos = [] # list of plates positions
 i = 0 # index of plates
 ball_dir_y = -10 # ball y direction
 ball_dir_x = -10 # ball x direction
 start = False # start game
-fras_y = 0 # falling y
+frastom_y = 0 # falling y
 
 
 """keypress(key):
@@ -124,7 +128,7 @@ fras_y = 0 # falling y
 """
 def keypress(key, x, y):
 	global ball_x, ball_y
-	if key == GLUT_KEY_UP and ball_y <= frastom_top - 200:
+	if key == GLUT_KEY_UP:
 		ball_y += 200
 	elif key == GLUT_KEY_RIGHT and ball_x <= s_t - 30:
 		ball_x -= ball_dir_x
@@ -136,19 +140,20 @@ def keypress(key, x, y):
 
 
 def draw():
-	global stair_step_x, stair_Step_y, plates, i , ball_x, ball_y , ball_dir_y, ball_dir_x , start, allower , fras_y
+	global stair_step_x, stair_Step_y, plates, i , ball_x, ball_y , ball_dir_y, ball_dir_x , start, allower , frastom_y
 	init()
 	glColor3f(1.0, 1.0, 1.0)
 	stairs()
 	glLoadIdentity()
 	glColor3f(1.0, 0, 0)
 	glTranslatef(ball_x, frastom_bottom, 0.0)  # move to center of the screen
-	ball = Rec(20, 0, 20, 0)
-	drawrec(ball, (ball_x, ball_y))
+	ball = Rec(20, 0, 20, 0,(ball_x, ball_y))
+	drawrec(ball)
 	for i in range(0,len(plates),1):
-		if ball_x + 10 >= (plates[i].left + plates_pos[i]) and (ball_x + 10 <= plates[i].right + plates_pos[i] ) and ball_y >= plates[i].bottom and ball_y <= plates[i].top:
+		print(i)
+		if ball_x + 10 >= (plates[i].left + plates[i].x) and (ball_x + 10 <= plates[i].right + plates[i].x ) and ball_y >= plates[i].bottom and ball_y <= plates[i].top:
 				ball_y += plates[i].top - ball_y
-				ball_dir_y = stair_Step_y
+				ball_dir_y = stair_step_y
 				ball_x += stair_step_x * plates[i].direction
 				allower = 1
 				break
@@ -158,11 +163,11 @@ def draw():
 		ball_y += ball_dir_y
 	else :
 		ball_y = frastom_bottom
-	fras_y += 1
+	frastom_y += 1
 	glutSwapBuffers()
 
 
-INTERVAL = 10
+INTERVAL = 30
 def game_timer(v):
 	draw()
 	glutTimerFunc(INTERVAL, game_timer, 1)
