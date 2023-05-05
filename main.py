@@ -74,13 +74,12 @@ def init():
 """
 def createPlate():
 	global plates, plates_pos
-	if plates == []:	
-		plates.append(Rec(150,140, min(random.randint(400, 750),450), max(random.randint(0,300), 250)))
+	top=	0 if plates == [] else plates[-1].top
+	bottom=-10 if plates == [] else plates[-1].bottom
+	if top <= frastom_top:
+		plates.append(Rec(top+150,bottom+150,random.randint(400, 450),random. randint(250,300)))
 		plates_pos.append(random.randint(-400 + (plates[-1].right - plates[-1].left) // 2,400 - (plates[-1].right - plates[-1].left) // 2))
-	if plates[-1].top <= frastom_top - 150:
-		plates.append(Rec(plates[-1].top + 150 ,plates[-1].bottom + 150 ,min(random.randint(400, 750),450), max(random.randint(0,300), 250)))
-		plates_pos.append(random.randint(int(-400 +(plates[-1].right - plates[-1].left) / 2),int (400 - (plates[-1].right - plates[-1].left) / 2)))
-
+		createPlate()
 
 """stairs
 @description: This function is used to draw the plates and create new plate
