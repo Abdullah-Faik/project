@@ -11,12 +11,11 @@ ball_dir_x = -10 # ball x direction
 ball = Rec(0, 20 ,510, 490) # ball rec
 
 def detector():
+        global ball, ball_dir_x, ball_dir_y, stair_step_x
         for plate in plates:
                 if ball.top >= plate.bottom and ball.bottom <= plate.top and ball.right >= plate.left and ball.left <= plate.right:
                         ball.left += plate.direction * stair_step_x
                         ball.right += plate.direction * stair_step_x
-                        ball.top += stair_step_y
-                        ball.bottom += stair_step_y
                         break
                 else:
                         ball.top += ball_dir_y
@@ -30,6 +29,6 @@ def detector():
                 ball.bottom = frastom_bottom
                 ball.top = frastom_bottom + 20
 
-def ball():
+def ball1():
         detector()
         drawrec(ball)
