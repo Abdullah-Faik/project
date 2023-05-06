@@ -2,6 +2,7 @@ from OpenGL.GL import *
 from OpenGL.GLU import *
 from OpenGL.GLUT import *
 import random
+import math
 
 class Rec(object):
 	def __init__(self, t, b, r, l):
@@ -19,9 +20,9 @@ def drawrec(rec):
 	glVertex2f(rec.right, rec.top)
 	glVertex2f(rec.left, rec.top)
 	glEnd()
-
+coins = []
 plates = []
-stair_step_x = 5 # moving plates in x direction
+stair_step_x = 2 # moving plates in x direction
 def createPlate():
 	if plates == []:
 		x = random.randint(0, 600)
@@ -39,10 +40,13 @@ def createPlate():
 		top = plates[-1].top + 100
 		bottom = plates[-1].bottom + 100
 		rec = Rec(top,bottom,right,left)
+		random_choose= random.randint(0,10)
+		if random_choose == 10:
+			coin = Rec(rec.top + 20,rec.bottom + 10,(rec.left + rec.right) / 2 - 5,(rec.left + rec.right) / 2 + 5)
 		plates.append(rec)
 
 def stairs():
-	global plates , stair_step_x
+	global plates , stair_step_x , coins
 	createPlate()
 	for i in range(0,len(plates),1):
 		drawrec(plates[i])
@@ -53,16 +57,53 @@ def stairs():
 		elif plates[i].left <= 0:
 			plates[i].direction = 1
 
-dtime = .000005
-ball_x_velocity = 0
-ball_y_velocity = 3
+def init_coins():
+	global coins
+	coins = []
+	for i in range(10):
+		x = random.randint(0,800)
+		y = random.randint(0,800)
+		coins.append((x, y)) 
+
+def generate_coin():
+	global coins
+	x = random.randint(0,)
+	y = random.randint(0,)
+	coins.append((x, y)) 
+
+def draw_coins():
+	# set the color to yellow
+	glColor3f(1, 1, 0) 
+
+	 # draw the coins
+	for coin in coins:
+		glRectf(coin[0], coin[1], coin[0] + coin_width, coin[1] + coin_height) 
+
+def detect_collision():
+	 #global score
+	for coin in coins:
+		#calculate the distance between the player and the coin
+		distance = math.sqrt((b_x - coin[0])2 + (b_y - coin[1])2) 
+
+		 # calculate the sum of the bounding box widths and heights
+		sum_width = s_x + coin_width
+		sum_height = s_y + coin_height 
+
+		# check for collision
+		if distance < sum_width and distance < sum_height:
+			coins.remove(coin)
+			#score += 1
+			generate_coin()
+
+dtime = .0000005
+ball_y_velocity = 0
 ball_dir_y = -1
 land = True
 
 ball = Rec(0, 20 ,510, 490) # ball rec
 def create_ball(ball):
 	global ball_dir_y , ball_x_velocity , ball_y_velocity , land
-	print(ball_dir_y, ball_x_velocity, ball_y_velocity)
+	print(ball_dir_y, ball_y_velocity)
 	for plate in plates:
 		if ball.left + 10 >= plate.left and ball.right - 10 <= plate.right and ball.bottom <= plate.top and ball.bottom >= plate.bottom:
 			ball.bottom += (plate.top - ball.bottom)
@@ -77,15 +118,14 @@ def create_ball(ball):
 			and plate.top <= ball.top and plate.bottom >= ball.bottom):
 			plate.direction = -1*plate.direction
 		else:
-			ball_y_velocity += 9.8 * dtime
-			ball_dir_y -= ball_y_velocity
+			ball_y_velocity -= 9.8 * dtime
+			ball_dir_y += ball_y_velocity
 			ball.bottom += ball_dir_y
 			ball.top += ball_dir_y
 
-	# if ball.bottom > frastom_bottom:
-	# 	ball.bottom += ball_dir_y
-	# 	ball.top += ball_dir_y
 	if ball.bottom <= frastom_bottom:
+		ball_y_velocity = 0
+		ball_dir_y = -1
 		land = True
 		ball.bottom = frastom_bottom
 		ball.top = frastom_bottom + 20
@@ -108,10 +148,10 @@ def init():
 
 def keypress(key, x, y):
 	global land
-	if key == GLUT_KEY_UP:
+	if key == GLUT_KEY_UP and land == True:
 		ball.direction = -1
-		ball.top += 200
-		ball.bottom += 200
+		ball.top += 170
+		ball.bottom += 170
 		land = False
 	elif key == GLUT_KEY_RIGHT and ball.right <= 800:
 		ball.right += 10
