@@ -53,11 +53,16 @@ def stairs():
 		elif plates[i].left <= 0:
 			plates[i].direction = 1
 
-ball_dir_y = -5 # ball y direction
-ball_dir_x = -10 # ball x direction
+dtime = .000005
+ball_x_velocity = 0
+ball_y_velocity = 3
+ball_dir_y = -1
+land = True
+
 ball = Rec(0, 20 ,510, 490) # ball rec
 def create_ball(ball):
-	global ball_dir_y , ball_dir_x
+	global ball_dir_y , ball_x_velocity , ball_y_velocity , land
+	print(ball_dir_y, ball_x_velocity, ball_y_velocity)
 	for plate in plates:
 		if ball.left + 10 >= plate.left and ball.right - 10 <= plate.right and ball.bottom <= plate.top and ball.bottom >= plate.bottom:
 			ball.bottom += (plate.top - ball.bottom)
@@ -65,17 +70,23 @@ def create_ball(ball):
 			ball.left += stair_step_x * plate.direction
 			ball.right += stair_step_x * plate.direction
 			ball_dir_y = 0
+			land = True
 			break
 		elif (((plate.left <= ball.right and plate.right > ball.right) or  
 			(plate.right >= ball.left and plate.left < ball.left) )
 			and plate.top <= ball.top and plate.bottom >= ball.bottom):
 			plate.direction = -1*plate.direction
 		else:
-			ball_dir_y = -1
-	if ball.bottom > frastom_bottom:
-		ball.bottom += ball_dir_y
-		ball.top += ball_dir_y
+			ball_y_velocity += 9.8 * dtime
+			ball_dir_y -= ball_y_velocity
+			ball.bottom += ball_dir_y
+			ball.top += ball_dir_y
+
+	# if ball.bottom > frastom_bottom:
+	# 	ball.bottom += ball_dir_y
+	# 	ball.top += ball_dir_y
 	if ball.bottom <= frastom_bottom:
+		land = True
 		ball.bottom = frastom_bottom
 		ball.top = frastom_bottom + 20
 	drawrec(ball)
@@ -96,16 +107,19 @@ def init():
 
 
 def keypress(key, x, y):
+	global land
 	if key == GLUT_KEY_UP:
+		ball.direction = -1
 		ball.top += 200
 		ball.bottom += 200
+		land = False
 	elif key == GLUT_KEY_RIGHT and ball.right <= 800:
 		ball.right += 10
 		ball.left += 10
 	elif key == GLUT_KEY_LEFT and ball.left >= 0:
 		ball.right -= 10
 		ball.left -= 10
-	elif key == GLUT_KEY_DOWN:
+	elif key == GLUT_KEY_DOWN: # remove this
 		ball.top -= 30
 		ball.bottom -= 30
 	glutPostRedisplay()
@@ -117,8 +131,6 @@ def draw():
 	glLoadIdentity()
 	create_ball(ball)
 	glutSwapBuffers()
-	
-
 
 INTERVAL = 10
 def game_timer(v):
