@@ -15,25 +15,26 @@ class Rec(object):
 
 
 def drawrec(rec):
-	glLoadIdentity()
-	glColor3f(1.0, 1.0, 1.0)
-	glBegin(GL_QUADS)
-	glVertex2f(rec.left, rec.bottom)
-	glVertex2f(rec.right, rec.bottom)
-	glVertex2f(rec.right, rec.top)
-	glVertex2f(rec.left, rec.top)
-	glEnd()
+    glLoadIdentity()
+    glColor3f(1.0, 1.0, 1.0)
+    glBegin(GL_QUADS)
+    glVertex2f(rec.left, rec.bottom)
+    glVertex2f(rec.right, rec.bottom)
+    glVertex2f(rec.right, rec.top)
+    glVertex2f(rec.left, rec.top)
+    glEnd()
 
 
 def drawcoin(coin):
     glLoadIdentity()
-    glColor3f(1.0, 1.0, 0.0) # Yellow color
+    glColor3f(1.0, 1.0, 0.0)  # Yellow color
     glBegin(GL_QUADS)
     glVertex2f(coin.left, coin.bottom)
     glVertex2f(coin.right, coin.bottom)
     glVertex2f(coin.right, coin.top)
     glVertex2f(coin.left, coin.top)
     glEnd()
+
 
 coins = []
 plates = []
@@ -59,7 +60,7 @@ def createPlate():
         rec = Rec(top, bottom, right, left)
         random_choose = random.randint(0, 10)
         if random_choose == 10:
-            coin =Rec(rec.top + 20, rec.bottom + 10, (rec.left + rec.right) / 2 - 5, (rec.left + rec.right) / 2 + 5)
+            coin = Rec(rec.top + 20, rec.bottom + 10, (rec.left + rec.right) / 2 - 5, (rec.left + rec.right) / 2 + 5)
             coins.append(coin)
         plates.append(rec)
 
@@ -99,7 +100,7 @@ def collision():
     for coin in coins:
         if ball.right > coin.left and ball.left < coin.right and ball.bottom < coin.top and ball.top > coin.bottom:
             coins.remove(coin)
-            #print("Coin collected!")
+            # print("Coin collected!")
 
 
 def create_ball(ball):
