@@ -40,38 +40,66 @@ def createPlate():
 		top = plates[-1].top + 100
 		bottom = plates[-1].bottom + 100
 		rec = Rec(top,bottom,right,left)
-		random_choose= random.randint(0,10)
-		if random_choose == 10:
-			plates.append(rec)
+		plates.append(rec)
 def drawText(string, x, y):
-        glLineWidth(2)
-        glColor(1,1,0)  # Yellow Color
-        glLoadIdentity() # remove the previous transformations
-        #glScale(0.13,0.13,1)  # Try this line
-        glTranslate(x,y,0)  # try comment this line
-        glScale(0.13,0.13,1)
-        string = string.encode() # conversion from Unicode string to byte string
-        glutStrokeString(GLUT_STROKE_ROMAN , string) # Stroke font	
+	glLineWidth(2)
+	glColor(1,1,0)  # Yellow Color
+	glLoadIdentity() # remove the previous transformations
+	#glScale(0.13,0.13,1)  # Try this line
+	glTranslate(x,y,0)  # try comment this line
+	glScale(0.13,0.13,1)
+	string = string.encode() # conversion from Unicode string to byte string
+	glutStrokeString(GLUT_STROKE_ROMAN , string) # Stroke font	
 	
 
 def stairs():
 	global plates , stair_step_x , coins
 	createPlate()
 	for i in range(0,len(plates),1):
-		drawrec(plates[i])
 		plates[i].right += stair_step_x * plates[i].direction
 		plates[i].left += stair_step_x * plates[i].direction
 		if plates[i].right >= 800:
 			plates[i].direction = -1
 		elif plates[i].left <= 0:
 			plates[i].direction = 1
+		drawrec(plates[i])
 
-dtime = .000000005
+dtime = 1
 ball_y_velocity = 0
+ball_x_velocity = 0
 ball_dir_y = -1
 land = True
+jumping = 55.0
+ball = Rec(0, 20 ,510, 490)
 
-ball = Rec(0, 20 ,510, 490) # ball rec
+def falling(ball):
+	global ball_dir_y , ball_y_velocity , land , jumping
+	ball_y_velocity = 0
+	if ball.bottom > frastom_bottom:
+		jumping -= 9.8 * dtime
+		ball_dir_y += jumping
+		ball.bottom += ball_dir_y
+		ball.top += ball_dir_y
+		land = False
+
+def moving_ball(ball):
+	global ball_dir_y , ball_y_velocity , land , increaseF , factor , ball_x_velocity
+	ball_x_velocity = 0
+	if increaseF:
+		factor += 1
+	else:
+		factor = 1
+	if keystates[1]:
+		if ball.right <= 800:
+			ball_x_velocity += factor * 0.25
+	if keystates[0]:
+		if ball.left > 0:
+			ball_x_velocity -= factor * 0.25
+	if keystates[2]:
+		falling(ball)
+	ball.left += ball_x_velocity
+	ball.right += ball_x_velocity
+
 def create_ball(ball):
 	global ball_dir_y , ball_x_velocity , ball_y_velocity , land
 	print(ball_dir_y, ball_y_velocity)
@@ -85,29 +113,30 @@ def create_ball(ball):
 			land = True
 			break
 		elif (((plate.left <= ball.right and plate.right > ball.right) or  
-			(plate.right >= ball.left and plate.left < ball.left) )
-			and plate.top <= ball.top and plate.bottom >= ball.bottom):
+			(plate.right >= ball.left and plate.left < ball.left)) and
+			plate.top <= ball.top and plate.bottom >= ball.bottom):
 			plate.direction = -1*plate.direction
-		else:
-			ball_y_velocity -= 9.8 * dtime
-			ball_dir_y += ball_y_velocity
-			ball.bottom += ball_dir_y
-			ball.top += ball_dir_y
+		else :
+			pass
+			falling(ball)
 
+	if ball.bottom >= frastom_bottom:
+		#falling(ball)
+		pass
 	if ball.bottom <= frastom_bottom:
-		if srart ==True:
-			sys.exit()
+		# if srart ==True:
+		# 	sys.exit()
 		ball_y_velocity = 0
 		ball_dir_y = -1
 		land = True
 		ball.bottom = frastom_bottom
 		ball.top = frastom_bottom + 20
+	moving_ball(ball)
 	drawrec(ball)
-
 
 frastom_top = 800
 frastom_bottom = 0
-frastom_y = 1 # falling y
+frastom_y = 1 #
 
 def init():
 	global frastom_top, frastom_bottom, frastom_y
@@ -115,50 +144,47 @@ def init():
 	glClear(GL_COLOR_BUFFER_BIT)
 	glMatrixMode(GL_PROJECTION)
 	glLoadIdentity()
-	if frastom_top - ball.top <= 200:
-		frastom_bottom = frastom_bottom - ball_dir_y + 10
-		frastom_top = frastom_top - ball_dir_y + 10
-	else:
-		frastom_bottom += 1
-		frastom_top += 1
+	# if frastom_top - ball.top <= 200:
+	# 	frastom_bottom = frastom_bottom - ball_dir_y + 10
+	# 	frastom_top = frastom_top - ball_dir_y + 10
+	# else:
+	# 	frastom_bottom += 1
+	# 	frastom_top += 1
 	glOrtho(0, 800,frastom_bottom ,frastom_top, -1.0, 1.0) # left, right, bottom, top, near, far
 	glMatrixMode(GL_MODELVIEW)
+increaseF = False
 srart = False
-key_pressed = [False, False, False, False]
+keystates = [False, False, False, False]
+factor = 1
 def keypress(key, x, y):
-	global srart, key_pressed, ball, land
+	global srart, key_pressed, ball, land , keystates , increaseF 
 	global land
-	if key == GLUT_KEY_UP and land == True:
-		ball.top += 200
-		ball.bottom += 200
-		key_pressed[0] = True
-		srart = True
-	if key == GLUT_KEY_RIGHT and ball.right <= 800:
-		key_pressed[1] = True
-	if key == GLUT_KEY_LEFT and ball.left >= 0:
-		key_pressed[2] = True
-		ball.right -= 10
-		ball.left -= 10
-	if key_pressed[0] == True and key_pressed[1] == True:
-		ball.direction = -1
-		ball.top += 200
-		ball.bottom += 200
-		ball.right += 100
-		ball.left += 100
-		key_pressed[0] = False
-		key_pressed[1] = False
-		land = False
-	elif key == GLUT_KEY_DOWN: # remove this
+	if ball.left > 0: #to detect the windo
+		if key == GLUT_KEY_LEFT:
+			keystates[0] = True
+	if ball.right < 800: #to detect the windo
+		if key == GLUT_KEY_RIGHT:
+			keystates[1] = True
+	if keystates[0] == True or keystates[1] == True:
+		increaseF = True
+	if key == GLUT_KEY_UP:
+		keystates[2] = True		
+	if key == GLUT_KEY_DOWN: # remove this
 		ball.top -= 30
 		ball.bottom -= 30
 	glutPostRedisplay()
-
+def reset_keys(key,x,y):
+	global keystates , increaseF , factor , ball_x_velocity
+	keystates = [False, False, False, False]
+	increaseF = False
+	glutPostRedisplay() # to redraw the scene
 def draw():
 	init()
 	glColor3f(1.0, 1.0, 1.0)
 	stairs()
 	glLoadIdentity()
 	create_ball(ball)
+	print(factor,increaseF)
 	glutSwapBuffers()
 
 INTERVAL = 10
@@ -176,6 +202,7 @@ def main():
 	glutTimerFunc(INTERVAL, game_timer, 1)
 	glutKeyboardFunc(keypress)
 	glutSpecialFunc(keypress)
+	glutSpecialUpFunc(reset_keys)
 	glutMainLoop()
 
 main()

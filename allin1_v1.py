@@ -153,8 +153,9 @@ def keypress(key, x, y):
     global land
     if key == GLUT_KEY_UP and land == True:
         ball.direction = -1
-        ball.top += 170
-        ball.bottom += 170
+        for i in range (0, 170, 1):
+            ball.top += 1
+            ball.bottom += 1
         land = False
     elif key == GLUT_KEY_RIGHT and ball.right <= 800:
         ball.right += 10
@@ -165,7 +166,6 @@ def keypress(key, x, y):
     elif key == GLUT_KEY_DOWN:  # remove this
         ball.top -= 30
         ball.bottom -= 30
-    glutPostRedisplay()
 
 
 def draw():
@@ -197,6 +197,7 @@ def main():
     glutTimerFunc(INTERVAL, game_timer, 1)
     glutKeyboardFunc(keypress)
     glutSpecialFunc(keypress)
+    glutSpecialUpFunc(keypress)
     init_coins()
     glutMainLoop()
 
