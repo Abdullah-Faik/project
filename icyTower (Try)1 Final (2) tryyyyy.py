@@ -219,8 +219,7 @@ def arrow_keys(key, x, y): #to make the bool true if you press on buttom
             
         if key == GLUT_KEY_UP:
             keystates[2] = True
-            if keystates[2] == True:
-                j = True
+            j = True
 
 
 def keys_up(key,x,y):    #use to get the list of bool  false agine
@@ -256,7 +255,7 @@ def jump():
                     barRight = randList[i] + barrier_width
                     yVelocity = iyVelocity
                     j = False
-
+    print(yVelocity,playerBottom,keystates[2])
     if highScore < barScore: #for inceres the score
         highScore = barScore
 
@@ -393,7 +392,7 @@ def main():
     glutTimerFunc(time_interval, Timer, 1)
     glutKeyboardFunc(keyboard)
     glutSpecialFunc(arrow_keys)
-    #glutSpecialUpFunc(keys_up)
+    glutSpecialUpFunc(keys_up)
     init()
     glutMainLoop()
 main()

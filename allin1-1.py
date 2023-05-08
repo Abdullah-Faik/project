@@ -3,7 +3,12 @@ from OpenGL.GLU import *
 from OpenGL.GLUT import *
 import random
 import math
-j = False
+
+onBar = False
+increaseY = False
+factY = 0
+
+
 class Rec(object):
 	def __init__(self, t, b, r, l):
 		self.top = t
@@ -49,7 +54,7 @@ def drawText(string, x, y):
 	glTranslate(x,y,0)  # try comment this line
 	glScale(0.13,0.13,1)
 	string = string.encode() # conversion from Unicode string to byte string
-	glutStrokeString(GLUT_STROKE_ROMAN , string) # Stroke font	
+	glutStrokeCharacter(GLUT_STROKE_ROMAN,string) # Stroke font	
 	
 
 def stairs():
@@ -64,34 +69,35 @@ def stairs():
 			plates[i].direction = 1
 		drawrec(plates[i])
 
-dtime = .1
+dtime = 1
 ball_y_velocity = 0
 ball_x_velocity = 0
 ball_dir_y = -1
 land = True
-jumping = 20
+jumping = 55 
 ball = Rec(0, 20 ,510, 490)
-increaseF = 0
-increaseY = 0
-# def falling(ball):
-# 	global ball_dir_y , ball_y_velocity , land , jumping
-# 	ball_y_velocity = 0
-# 	if ball.bottom > frastom_bottom:
-# 		jumping -= 9.8 * dtime
-# 		ball_dir_y += jumping
-# 		ball.bottom += ball_dir_y
-# 		ball.top += ball_dir_y
-# 		land = False
+factor = 1
+increaseF = False
+srart = False
+def falling(ball : Rec):
+	global ball_dir_y , ball_y_velocity , land ,jumping
+	jumping-= 9.8 * dtime
+	ball_dir_y += jumping 
+	ball.bottom += ball_dir_y
+	ball.top += ball_dir_y
+	land = False
 def moving_ball(ball):
-	global ball_dir_y, ball_y_velocity,jumping, land, increaseF, increaseY, factY, factor, ball_x_velocity, factY , j
+	global ball_dir_y, ball_y_velocity, land, increaseF, increaseY, factY, factor, ball_x_velocity, factY 
 	ball_x_velocity = 0
+	ball_y_velocity = 0
+	x = 10
 	if increaseF:
 		factor += 1
 	else:
-		factor = 2
+		factor = 1
 
 	if increaseY:
-		factY = factor
+		factY += 1
 	else:
 		factY = 0
 
@@ -101,26 +107,20 @@ def moving_ball(ball):
 	if keystates[0]:
 		if ball.left >= 0:
 			ball_x_velocity -= factor * 0.25
-	if j:
-		jumping -= 9.8 * dtime
-		ball_y_velocity += jumping * dtime 
-	if ball.bottom <= frastom_bottom:
-		ball_y_velocity = 0
-		ball_dir_y = -1
-		land = True
-		ball.bottom = frastom_bottom
-		ball.top = frastom_bottom + 20
-		jumping = 20
-		j = False
-	ball.bottom += ball_y_velocity
-	ball.top = ball.bottom + 20
+	if keystates[2] and increaseY:
+		ball_y_velocity = factY 
+	elif not(keystates[2]):
+		ball_y_velocity -= 10
+
+	ball.bottom += ball_y_velocity 
+	ball.top += ball_y_velocity
 	ball.left += ball_x_velocity
 	ball.right += ball_x_velocity
-	print(jumping,keystates[2],j)
+	print(factY, ball_y_velocity, factor)
 
-def create_ball(ball):
-	global ball_dir_y , ball_x_velocity , ball_y_velocity , land , jumping , j
-	print(ball_dir_y, ball_y_velocity)
+def create_ball(ball : Rec):
+	global ball_dir_y , ball_x_velocity , ball_y_velocity , land , onBar , plates
+	# print(ball_dir_y, ball_y_velocity)
 	for plate in plates:
 		if ball.left + 10 >= plate.left and ball.right - 10 <= plate.right and ball.bottom <= plate.top and ball.bottom >= plate.bottom:
 			ball.bottom += (plate.top - ball.bottom)
@@ -129,19 +129,33 @@ def create_ball(ball):
 			ball.right += stair_step_x * plate.direction
 			ball_dir_y = 0
 			land = True
-			j = False
+			onBar = True
 			break
 		elif (((plate.left <= ball.right and plate.right > ball.right) or  
 			(plate.right >= ball.left and plate.left < ball.left)) and
 			plate.top <= ball.top and plate.bottom >= ball.bottom):
 			plate.direction = -1*plate.direction
+		if not (onBar or land): # on the space
+			while ball_y_velocity > 0 :
+				ball_y_velocity-=10
 
+	# if ball.bottom >= frastom_bottom:
+	# 	falling(ball)
 
+	if ball.bottom <= frastom_bottom:
+		# if srart ==True:
+		# 	sys.exit()
+		ball_y_velocity = 0
+		ball_dir_y = -1
+		land = True
+		ball.bottom = frastom_bottom
+		ball.top = frastom_bottom + 20
+	moving_ball(ball)
 	drawrec(ball)
 
 frastom_top = 800
 frastom_bottom = 0
-frastom_y = 1 
+frastom_y = 1 #
 
 def init():
 	global frastom_top, frastom_bottom, frastom_y
@@ -157,12 +171,11 @@ def init():
 	# 	frastom_top += 1
 	glOrtho(0, 800,frastom_bottom ,frastom_top, -1.0, 1.0) # left, right, bottom, top, near, far
 	glMatrixMode(GL_MODELVIEW)
-increaseF = False
-srart = False
+
 keystates = [False, False, False, False]
-factor = 1
+
 def keypress(key, x, y):
-	global srart, key_pressed, ball, land , keystates , increaseF , increaseY , j
+	global srart, key_pressed, ball, land , keystates , increaseF , factY , increaseY
 	global land
 	if ball.left > 0: #to detect the windo
 		if key == GLUT_KEY_LEFT:
@@ -174,25 +187,33 @@ def keypress(key, x, y):
 		increaseF = True
 	if key == GLUT_KEY_UP:
 		keystates[2] = True
-		j = True 	
+		increaseY = True
 	if key == GLUT_KEY_DOWN: # remove this
 		ball.top -= 30
 		ball.bottom -= 30
 	glutPostRedisplay()
+
 def reset_keys(key,x,y):
-	global keystates , increaseF , factor , ball_x_velocity ,increaseY , j 
+	global keystates , increaseF , factor , ball_x_velocity , increaseY
 	keystates = [False, False, False, False]
 	increaseF = False
-	glutPostRedisplay()
+	increaseY = False
+	glutPostRedisplay() # to redraw the scene
+
 def draw():
 	init()
 	glColor3f(1.0, 1.0, 1.0)
 	stairs()
 	glLoadIdentity()
 	create_ball(ball)
-	moving_ball(ball)
-	print(factor,increaseF)
+	# print(factor,increaseF)
 	glutSwapBuffers()
+
+def keyboard(key, x, y):  #used for end and start the game onley
+
+    if key == b"q":
+        sys.exit(0)
+
 
 INTERVAL = 10
 def game_timer(v):
@@ -203,11 +224,11 @@ def main():
 	glutInit()
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB)
 	glutInitWindowSize(800, 800)
-	glutInitWindowPosition(100, 100)
+	glutInitWindowPosition(100, 10)
 	glutCreateWindow (b"OpenGL - First window demo")
 	glutDisplayFunc(draw)
 	glutTimerFunc(INTERVAL, game_timer, 1)
-	glutKeyboardFunc(keypress)
+	glutKeyboardFunc(keyboard) #
 	glutSpecialFunc(keypress)
 	glutSpecialUpFunc(reset_keys)
 	glutMainLoop()
