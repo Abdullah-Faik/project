@@ -104,7 +104,7 @@ def moving_ball(ball):
 	if j:
 		jumping -= 9.8 * dtime
 		ball_y_velocity += jumping * dtime 
-	if ball.bottom <= frastom_bottom:
+	if ball.bottom < frastom_bottom:
 		ball_y_velocity = 0
 		ball_dir_y = -1
 		land = True
@@ -127,7 +127,8 @@ def create_ball(ball):
 			ball.top = ball.bottom + 20
 			ball.left += stair_step_x * plate.direction
 			ball.right += stair_step_x * plate.direction
-			ball_dir_y = 0
+			ball_y_velocity = 0
+			jumping=20
 			land = True
 			j = False
 			break
@@ -180,7 +181,7 @@ def keypress(key, x, y):
 		ball.bottom -= 30
 	glutPostRedisplay()
 def reset_keys(key,x,y):
-	global keystates , increaseF , factor , ball_x_velocity ,increaseY , j 
+	global keystates , increaseF , factor , ball_x_velocity ,increaseY 
 	keystates = [False, False, False, False]
 	increaseF = False
 	glutPostRedisplay()
@@ -189,8 +190,8 @@ def draw():
 	glColor3f(1.0, 1.0, 1.0)
 	stairs()
 	glLoadIdentity()
-	create_ball(ball)
 	moving_ball(ball)
+	create_ball(ball)
 	print(factor,increaseF)
 	glutSwapBuffers()
 
