@@ -128,7 +128,7 @@ def create_ball(ball : Rec):
 			ball.left += stair_step_x * plate.direction
 			ball.right += stair_step_x * plate.direction
 			ball_dir_y = 0
-			land = True
+			#land = True
 			onBar = True
 			break
 		elif (((plate.left <= ball.right and plate.right > ball.right) or  
