@@ -1,4 +1,4 @@
-from rec import *
+from rec import Rec
 import Global
 ball = Rec(20, 0 ,510, 490)
 def player_mover_x(player):

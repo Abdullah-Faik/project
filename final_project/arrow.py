@@ -1,5 +1,5 @@
 import Global
-from rec import *
+from rec import Rec
 def keypress(key, x, y):
 	if Global.ball.left > 0: #to detect the windo
 		if key == GLUT_KEY_LEFT:

@@ -1,7 +1,4 @@
-from rec import *
-from OpenGL.GL import *
-from OpenGL.GLU import *
-from OpenGL.GLUT import *
+
 # frastom 
 frastom_top = 800
 frastom_bottom = 0
