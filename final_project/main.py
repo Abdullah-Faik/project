@@ -1,13 +1,15 @@
 from OpenGL.GL import *
 from OpenGL.GLU import *
 from OpenGL.GLUT import *
+import random
+
 # frastom 
 frastom_top = 800
 frastom_bottom = 0
 frastom_y = 1 
 g = 9.8
 start = False
-import random
+
 #ball
 factor_detector = False
 factor = 1
@@ -23,11 +25,15 @@ moving_down = 0
 factor_increaser = 0
 increaseY = 0
 increaseF = True
+
 #keyboard
 keystates = [False, False, False, False]
+
 # plates
 plates = []
 stair_step_x = 2
+
+INTERVAL = 10
 
 class Rec():
 	def __init__(self, t, b, r, l):
@@ -45,67 +51,29 @@ class Rec():
 		glVertex2f(self.right, self.top)
 		glVertex2f(self.left, self.top)
 		glEnd()
+
 ball = Rec(20, 0 ,510, 490)
 
 def player_mover_x(player):
-	global frastom_top
-	global frastom_bottom 
-	global frastom_y
-	global g 
-	global start 
-	global factor_detector
-	global factor
-	global dtime 
-	global ball_y_velocity 
-	global ball_x_velocity 
-	global ball_dir_y 
-	global ball_dir_x
-	global on_plate
-	global jumping 
-	global moving_up
-	global moving_down
-	global factor_increaser
-	global increaseY 
-	global increaseF 
-	global keystates
-	global plates
-	global stair_step_x
+	global increaseF ,ball_x_velocity,factor,ball_dir_x,keystates
+
 	# x movemet
 	ball_x_velocity = 0 # need to be تتفهم 
 	if increaseF == True: # if the kay being pressed 
 		factor += 1
 	else:
 		factor = 1
-	if keystates[0] == True and  ball.left > 10: # LEFT OR right 
+	if keystates[0] == True and  player.left > 10: # LEFT OR right 
 			ball_x_velocity += factor * 0.1 * ball_dir_x
 
-	if keystates[1] == True and ball.right < 790:# LEFT OR right 
+	if keystates[1] == True and player.right < 790:# LEFT OR right 
 			ball_x_velocity += factor * 0.1 * ball_dir_x
 
 	player.left += ball_x_velocity
 	player.right += ball_x_velocity
 
 def player_mover_y(player):
-	global frastom_top,frastom_bottom ,frastom_y
-	global g 
-	global start 
-	global factor_detector
-	global factor
-	global dtime 
-	global ball_y_velocity 
-	global ball_x_velocity 
-	global ball_dir_y 
-	global ball_dir_x
-	global on_plate
-	global jumping 
-	global moving_up
-	global moving_down
-	global factor_increaser
-	global increaseY 
-	global increaseF 
-	global keystates
-	global plates
-	global stair_step_x
+	global jumping,ball_y_velocity ,dtime,plates,moving_up,stair_step_x,on_plate,moving_down,frastom_bottom
 	
 	if jumping == True:
 		ball_y_velocity = moving_up 
@@ -150,6 +118,8 @@ def player_mover_y(player):
 #TODO: المفروض لما يطلع من برا الطبق يقع 
 
 def createPlate():
+	global plates
+
 	if plates == []:
 		x = random.randint(0, 600)
 		right = (random.randint(100, 200)) + x
@@ -169,28 +139,8 @@ def createPlate():
 		plates.append(rec)
 		
 def stairs():
-	global frastom_top
-	global frastom_bottom 
-	global frastom_y
-	global g 
-	global start 
-	global factor_detector
-	global factor
-	global dtime 
-	global ball_y_velocity 
-	global ball_x_velocity 
-	global ball_dir_y 
-	global ball_dir_x
-	global on_plate
-	global jumping 
-	global moving_up
-	global moving_down
-	global factor_increaser
-	global increaseY 
-	global increaseF 
-	global keystates
-	global plates
-	global stair_step_x
+	global plates,stair_step_x
+
 	createPlate()
 	for i in range(0,len(plates),1):
 		plates[i].right += stair_step_x * plates[i].direction
@@ -203,32 +153,14 @@ def stairs():
 
 def player():
 	global ball
+
 	player_mover_x(ball)
 	player_mover_y(ball)
 	ball.drawrec()
+
 def keypress(key, x, y):
-	global frastom_top
-	global frastom_bottom 
-	global frastom_y
-	global g 
-	global start 
-	global factor_detector
-	global factor
-	global dtime 
-	global ball_y_velocity 
-	global ball_x_velocity 
-	global ball_dir_y 
-	global ball_dir_x
-	global on_plate
-	global jumping 
-	global moving_up
-	global moving_down
-	global factor_increaser
-	global increaseY 
-	global increaseF 
-	global keystates
-	global plates
-	global stair_step_x
+	global increaseF ,keystates,jumping,ball,ball_dir_x
+
 	if ball.left > 0: #to detect the windo
 		if key == GLUT_KEY_LEFT:
 			ball_dir_x = -1
@@ -251,28 +183,8 @@ def keypress(key, x, y):
 	glutPostRedisplay()
 
 def reset_keys(key,x,y):
-	global frastom_top
-	global frastom_bottom 
-	global frastom_y
-	global g 
-	global start 
-	global factor_detector
-	global factor
-	global dtime 
-	global ball_y_velocity 
-	global ball_x_velocity 
-	global ball_dir_y 
-	global ball_dir_x
-	global on_plate
-	global jumping 
-	global moving_up
-	global moving_down
-	global factor_increaser
-	global increaseY 
-	global increaseF 
-	global keystates
-	global plates
-	global stair_step_x
+	global increaseF ,keystates
+
 	keystates = [False, False, False, False]
 	increaseF = False
 	glutPostRedisplay() # to redraw the scene
@@ -293,28 +205,6 @@ def init():
 	glMatrixMode(GL_MODELVIEW)
 
 def draw():
-	global frastom_top
-	global frastom_bottom 
-	global frastom_y
-	global g 
-	global start 
-	global factor_detector
-	global factor
-	global dtime 
-	global ball_y_velocity 
-	global ball_x_velocity 
-	global ball_dir_y 
-	global ball_dir_x
-	global on_plate
-	global jumping 
-	global moving_up
-	global moving_down
-	global factor_increaser
-	global increaseY 
-	global increaseF 
-	global keystate
-	global plates
-	global stair_step_x
 	init()
 	glColor3f(1.0, 1.0, 1.0)
 	stairs()
@@ -323,8 +213,9 @@ def draw():
 	glLoadIdentity()
 	glutSwapBuffers()
 
-INTERVAL = 10
+
 def game_timer(v):
+	global INTERVAL
 	draw()
 	glutTimerFunc(INTERVAL, game_timer, 1)
 
@@ -342,4 +233,3 @@ def main():
 	glutMainLoop()
 
 main()
-
