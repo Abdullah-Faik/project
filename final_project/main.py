@@ -148,7 +148,6 @@ def player_mover_y(player):
 
 
 #TODO: المفروض لما يطلع من برا الطبق يقع 
-from rec import *
 
 def createPlate():
 	if plates == []:
