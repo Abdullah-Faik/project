@@ -7,6 +7,7 @@ g = 9.8
 start = False
 
 #ball
+ball=None
 factor_detector = False
 factor = 1
 dtime = .1
@@ -27,3 +28,6 @@ keystates = [False, False, False, False]
 # plates
 plates = []
 stair_step_x = 2
+
+
+INTERVAL=10

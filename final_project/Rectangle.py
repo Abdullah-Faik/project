@@ -1,7 +1,8 @@
 from OpenGL.GL import *
 from OpenGL.GLU import *
 from OpenGL.GLUT import *
-from Plates import *
+import Global as G
+
 class Rec():
 	def __init__(self, t, b, r, l):
 		self.top = t
@@ -18,3 +19,5 @@ class Rec():
 		glVertex2f(self.right, self.top)
 		glVertex2f(self.left, self.top)
 		glEnd()
+
+
